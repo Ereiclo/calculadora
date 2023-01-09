@@ -49,6 +49,7 @@ body{
     width: 21.333333%;
     margin-right: 2%;
     background-color: white;
+    user-select: none;
 }
 
 .row-start{
