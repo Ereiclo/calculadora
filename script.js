@@ -2,7 +2,7 @@
 let output = document.querySelector('.output');
 let botones = document.querySelectorAll('.button');
 let per = document.querySelector('.none');
-let resultButton = document.querySelector('.button[data-number="="]');
+let resultButton = document.querySelector('.button[data-input="="]');
 let resetButton = document.querySelector('.reset');
 // let status = 'invalid_expression'
 let stat; 
@@ -53,9 +53,40 @@ function validParentesis(exp){
     return !Boolean(stack.length);
 }
 
+function validDecimals(exp){
+
+    for(let i = 0; i < exp.length; ++i){
+
+
+        if(exp[i] == '.') return false;
+
+        while(i < exp.length && isNumber(exp[i])) ++i;
+
+
+        if(i < exp.length && exp[i] == '.'){
+
+            if(i == exp.length - 1 || !isNumber(exp[i+1])) return false;
+
+            ++i;
+
+            while(i < exp.length && isNumber(exp[i])) ++i;
+
+            if(i < exp.length && exp[i] == '.') return false;
+        }
+        
+        
+        
+
+        
+    }
+
+    return true;
+
+}
+
 
 function validOperations(exp){
-    if(!validParentesis(exp)) return false;
+    if(!validParentesis(exp) || !validDecimals(exp)) return false;
 
     for(let i = 0; i < exp.length; ++i){
         let char = exp[i];
@@ -214,10 +245,38 @@ function evaluateExpresion(exp){
 
 }
 
+let outputNaN = 0;
+let validDot = 0;
+
 function click(e){
+
+    if(outputNaN) {
+        output.textContent = '';
+        outputNaN = 0;
+    }
+
     console.log(this);
 
-    output.textContent += this.innerHTML;
+    let dataAttr = this.getAttribute('data-input');
+
+    if(isNumber(dataAttr) && validDot == 0){
+        validDot = true
+
+    }else if(isOperator(dataAttr) && validDot == 2){
+        validDot = 0;
+    }
+
+    if(dataAttr == '.' ){
+        if(validDot == 1){
+            validDot = 2;
+            output.textContent += '.';
+        }
+
+    }else{
+        output.textContent += dataAttr;
+    }
+
+
 
 
 
@@ -241,7 +300,7 @@ resetButton.removeEventListener('click',click);
 
 
 resetButton.addEventListener('click',(e) => {
-    output.innerHTML = ''
+    output.innerHTML = '';
     stat = '';
 })
 
@@ -250,7 +309,12 @@ resultButton.addEventListener('click',(e) => {
     let result = evaluateExpresion(output.innerHTML);
 
     // console.log(result)
+    if(isNaN(result)){
 
-    output.innerHTML = result;
+        validDot = 0;
+        outputNaN = 1;
+    }
+
+    output.innerHTML = result.toFixed(2);
 
 })
