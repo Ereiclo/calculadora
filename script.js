@@ -337,8 +337,8 @@ resultButton.addEventListener('click',(e) => {
 
 
 document.addEventListener('keydown',(e) => {
-    console.log(e.code)
+    console.log(e.key)
     if(e.key == 'Backspace') output.innerHTML = output.innerHTML.slice(0,-1);
     else if(e.key == 'Enter') evaluateOutput()
-    else if(isNumber(e.key) || isParentesis(e.key) || isOperator(e.key)) addInput(e.key);
+    else if(isNumber(e.key) || isParentesis(e.key) || isOperator(e.key) || e.key == '.') addInput(e.key);
 })
