@@ -20,6 +20,16 @@ function isParentesis(c){
     return c === '(' || c === ')';
 }
 
+
+function greaterOrEqualPrecedence(opA,opB){
+    if(opA === '*' || opA == '/'){
+        return opB === '*' || opB === '/';
+    }else if(opA === '+' || opA === '-'){
+
+        return opB === '+' || opB === '-' || opB === '*' || opB === '/' ;
+    }
+}
+
 function validParentesis(exp){
 
     let stack = [];
@@ -74,12 +84,7 @@ function validOperations(exp){
 }
 
 
-
-function evaluateExpresion(exp){
-    // exp = exp.replace(/[ ]/g,"")
-
-
-
+function stringToArray(exp){
     let expression = []
 
     for(let i = 0; i < exp.length;){
@@ -122,17 +127,89 @@ function evaluateExpresion(exp){
 
     }
 
-    console.log(expression);
+    return expression;
 
+
+}
+
+function evaluateExpresion(exp){
+    exp = exp.replace(/[ ]/g,"")
+    if(!validOperations(exp)) return NaN;
+
+
+
+    let infix = stringToArray(exp);
+    let stack = ['(']
+    let postfix = []
+    console.log(infix)
+
+    infix.push(')')
+
+
+    for(let elem of infix){
+        if(elem == ')'){
+            while(stack.length && stack.slice(-1)[0] != '('){
+                let [top] = stack.splice(-1,1);
+
+                postfix.push(top);
+
+
+            }
+
+            stack.pop();
+        }else if(elem == '('){
+            stack.push('(')
+        }
+        else if(isNumber(elem)){
+            postfix.push(elem);
+        }else if(isOperator(elem)){
+            if(stack.slice(-1) != '('){
+
+                while(stack.length && stack.slice(-1)[0] != '('){
+                    let [top] = stack.slice(-1);
+
+                    if(greaterOrEqualPrecedence(elem,top)){
+                        [top] = stack.splice(-1,1);
+                        postfix.push(top);
+                    }
+
+
+                }
+                
+
+            }
+
+            stack.push(elem);
+        }
+    }
+
+    console.log(postfix)
+
+
+    let result = [];
+
+    for(let elem of postfix){
+        if(isOperator(elem)){
+
+            let [a,b] = result.splice(-2,2);
+            if(elem === '*'){
+                result.push(a*b);
+            }else if(elem === '/'){
+                result.push(a/b);
+            }else if(elem === '+'){
+                result.push(a + b);
+            }else if(elem === '-'){
+                result.push(a-b);
+            }
+        }else{
+            result.push(elem);
+        }
+
+    }
+
+    return result[0];
     
-
-
-
     
-    
-
-    stat = 'valid_expression'
-
 
 
 }
@@ -166,4 +243,14 @@ resetButton.removeEventListener('click',click);
 resetButton.addEventListener('click',(e) => {
     output.innerHTML = ''
     stat = '';
+})
+
+
+resultButton.addEventListener('click',(e) => {
+    let result = evaluateExpresion(output.innerHTML);
+
+    // console.log(result)
+
+    output.innerHTML = result;
+
 })
