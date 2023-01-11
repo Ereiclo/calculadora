@@ -202,7 +202,8 @@ function evaluateExpresion(exp){
                     if(greaterOrEqualPrecedence(elem,top)){
                         [top] = stack.splice(-1,1);
                         postfix.push(top);
-                    }
+                    }else
+                        break;
 
 
                 }
@@ -248,37 +249,61 @@ function evaluateExpresion(exp){
 let outputNaN = 0;
 let validDot = 0;
 
-function click(e){
+
+function addInput(input){
 
     if(outputNaN) {
         output.textContent = '';
         outputNaN = 0;
     }
 
-    console.log(this);
-
-    let dataAttr = this.getAttribute('data-input');
-
-    if(isNumber(dataAttr) && validDot == 0){
+    if(isNumber(input) && validDot == 0){
         validDot = true
 
-    }else if(isOperator(dataAttr) && validDot == 2){
+    }else if(isOperator(input) && validDot == 2){
         validDot = 0;
     }
 
-    if(dataAttr == '.' ){
+    if(input == '.' ){
         if(validDot == 1){
             validDot = 2;
             output.textContent += '.';
         }
 
     }else{
-        output.textContent += dataAttr;
+        output.textContent += input;
     }
 
 
 
+}
 
+function click(e){
+
+
+    console.log(this);
+
+    let input = this.getAttribute('data-input');
+
+    addInput(input);
+
+    
+
+
+}
+
+function evaluateOutput(){
+
+    let result = evaluateExpresion(output.innerHTML);
+
+    // console.log(result)
+    if(!isFinite(result)){
+
+        validDot = 0;
+        outputNaN = 1;
+    }
+
+    output.innerHTML = Number.isInteger(result) ? result: result.toFixed(2);
 
 }
 
@@ -306,15 +331,14 @@ resetButton.addEventListener('click',(e) => {
 
 
 resultButton.addEventListener('click',(e) => {
-    let result = evaluateExpresion(output.innerHTML);
 
-    // console.log(result)
-    if(isNaN(result)){
+    evaluateOutput()
+})
 
-        validDot = 0;
-        outputNaN = 1;
-    }
 
-    output.innerHTML = result.toFixed(2);
-
+document.addEventListener('keydown',(e) => {
+    console.log(e.code)
+    if(e.key == 'Backspace') output.innerHTML = output.innerHTML.slice(0,-1);
+    else if(e.key == 'Enter') evaluateOutput()
+    else if(isNumber(e.key) || isParentesis(e.key) || isOperator(e.key)) addInput(e.key);
 })
